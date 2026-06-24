@@ -3,6 +3,7 @@ node_modules/
 .codex/
 .expo/
 .expo-shared/
+.netlify/
 dist/
 build/
 web-build/
