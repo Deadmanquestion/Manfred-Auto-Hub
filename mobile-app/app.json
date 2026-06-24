@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Manfred Auto Hub",
+    "slug": "manfred",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "manfred",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.manfred.autohub"
+    },
+    "ios": {
+      "bundleIdentifier": "com.manfred.autohub"
+    }
+  }
+}

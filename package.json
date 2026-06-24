@@ -1,0 +1,24 @@
+{
+  "name": "manfred",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MVP starter workspace for Manfred, a family car service shop app.",
+  "workspaces": [
+    "mobile-app",
+    "admin-dashboard",
+    "shared"
+  ],
+  "scripts": {
+    "start": "npm run mobile",
+    "mobile": "npm run start --workspace @manfred/mobile-app",
+    "mobile:android": "npm run android --workspace @manfred/mobile-app",
+    "mobile:ios": "npm run ios --workspace @manfred/mobile-app",
+    "mobile:web": "npm run web --workspace @manfred/mobile-app",
+    "export:web": "npm run export:web --workspace @manfred/mobile-app",
+    "app:configure": "npm run eas:configure --workspace @manfred/mobile-app",
+    "app:android": "npm run build:android --workspace @manfred/mobile-app",
+    "app:ios": "npm run build:ios --workspace @manfred/mobile-app",
+    "admin": "npm run dev --workspace @manfred/admin-dashboard",
+    "typecheck": "npm --workspaces run typecheck"
+  }
+}
