@@ -5,6 +5,8 @@ export type ScreenName =
   | "Register"
   | "Home"
   | "Booking"
+  | "Vehicle"
+  | "Alerts"
   | "MyCars"
   | "AddCar"
   | "BookService"
@@ -12,6 +14,10 @@ export type ScreenName =
   | "MyBookings"
   | "Jobs"
   | "JobApplication"
+  | "WorkshopDetail"
+  | "BookingSummary"
+  | "LiftBookingSummary"
+  | "ServiceBookingSummary"
   | "Profile";
 
 export interface ScreenProps {

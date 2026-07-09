@@ -12,7 +12,7 @@ export function AnimatedSectionHeader({ eyebrow, title }: AnimatedSectionHeaderP
 
   useEffect(() => {
     Animated.timing(progress, {
-      duration: 280,
+      duration: 340,
       toValue: 1,
       useNativeDriver: true
     }).start();
@@ -20,7 +20,7 @@ export function AnimatedSectionHeader({ eyebrow, title }: AnimatedSectionHeaderP
 
   const translateY = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [10, 0]
+    outputRange: [14, 0]
   });
 
   return (

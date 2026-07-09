@@ -7,12 +7,18 @@ import { BookingHubScreen } from "./src/screens/BookingHubScreen";
 import { BookLiftScreen } from "./src/screens/BookLiftScreen";
 import { BookServiceScreen } from "./src/screens/BookServiceScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
+import { VehicleScreen } from "./src/screens/VehicleScreen";
+import { AlertsScreen } from "./src/screens/AlertsScreen";
 import { JobApplicationScreen } from "./src/screens/JobApplicationScreen";
 import { LoginScreen } from "./src/screens/LoginScreen";
+import { BookingSummaryScreen } from "./src/screens/BookingSummaryScreen";
+import { LiftBookingSummaryScreen } from "./src/screens/LiftBookingSummaryScreen";
 import { MyBookingsScreen } from "./src/screens/MyBookingsScreen";
 import { MyCarsScreen } from "./src/screens/MyCarsScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
 import { RegisterScreen } from "./src/screens/RegisterScreen";
+import { ServiceBookingSummaryScreen } from "./src/screens/ServiceBookingSummaryScreen";
+import { WorkshopDetailScreen } from "./src/screens/WorkshopDetailScreen";
 import { colors } from "./src/theme/colors";
 import type { MockUser, ScreenName, ScreenProps } from "./src/types/navigation";
 import type { BookingSummary, CarSummary } from "./src/types/ui";
@@ -76,7 +82,7 @@ export default function App() {
   const showTabs = screen !== "Login" && screen !== "Register";
   const isDesktopWeb = Platform.OS === "web" && width >= 768;
 
-  function handleChangeTab(nextScreen: "Home" | "Booking" | "MyCars" | "Jobs" | "Profile") {
+  function handleChangeTab(nextScreen: "Home" | "Booking" | "Vehicle" | "Alerts" | "Profile") {
     setHistory([]);
     setScreen(nextScreen);
   }
@@ -96,6 +102,14 @@ export default function App() {
 
     if (screen === "Booking") {
       return <BookingHubScreen {...navigation} />;
+    }
+
+    if (screen === "Vehicle") {
+      return <VehicleScreen {...navigation} />;
+    }
+
+    if (screen === "Alerts") {
+      return <AlertsScreen {...navigation} />;
     }
 
     if (screen === "MyCars") {
@@ -118,12 +132,28 @@ export default function App() {
       return <MyBookingsScreen {...navigation} />;
     }
 
+    if (screen === "LiftBookingSummary") {
+      return <LiftBookingSummaryScreen {...navigation} />;
+    }
+
+    if (screen === "ServiceBookingSummary") {
+      return <ServiceBookingSummaryScreen {...navigation} />;
+    }
+
     if (screen === "Jobs") {
       return <JobApplicationScreen {...navigation} showBack={false} />;
     }
 
     if (screen === "JobApplication") {
       return <JobApplicationScreen {...navigation} />;
+    }
+
+    if (screen === "WorkshopDetail") {
+      return <WorkshopDetailScreen {...navigation} />;
+    }
+
+    if (screen === "BookingSummary") {
+      return <BookingSummaryScreen {...navigation} />;
     }
 
     if (screen === "Profile") {

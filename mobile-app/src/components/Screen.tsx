@@ -19,7 +19,7 @@ export function Screen({ children, scrollY }: ScreenProps) {
   useEffect(() => {
     enterProgress.setValue(0);
     Animated.timing(enterProgress, {
-      duration: 260,
+      duration: 360,
       toValue: 1,
       useNativeDriver: true
     }).start();
@@ -27,7 +27,7 @@ export function Screen({ children, scrollY }: ScreenProps) {
 
   const enterTranslateY = enterProgress.interpolate({
     inputRange: [0, 1],
-    outputRange: [18, 0]
+    outputRange: [22, 0]
   });
 
   return (

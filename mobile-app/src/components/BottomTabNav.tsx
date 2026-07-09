@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 import type { ScreenName } from "../types/navigation";
 
-type MainTab = "Home" | "Booking" | "MyCars" | "Jobs" | "Profile";
+type MainTab = "Home" | "Booking" | "Vehicle" | "Alerts" | "Profile";
 
 interface BottomTabNavProps {
   activeScreen: ScreenName;
@@ -11,9 +11,9 @@ interface BottomTabNavProps {
 
 const tabs: Array<{ label: string; screen: MainTab; match: ScreenName[] }> = [
   { label: "Home", screen: "Home", match: ["Home"] },
-  { label: "Booking", screen: "Booking", match: ["Booking", "BookLift", "BookService", "MyBookings"] },
-  { label: "My Cars", screen: "MyCars", match: ["MyCars", "AddCar"] },
-  { label: "Jobs", screen: "Jobs", match: ["Jobs", "JobApplication"] },
+  { label: "Booking", screen: "Booking", match: ["Booking", "BookLift", "BookService", "MyBookings", "WorkshopDetail", "BookingSummary", "LiftBookingSummary", "ServiceBookingSummary"] },
+  { label: "Vehicle", screen: "Vehicle", match: ["Vehicle", "MyCars", "AddCar"] },
+  { label: "Alerts", screen: "Alerts", match: ["Alerts"] },
   { label: "Profile", screen: "Profile", match: ["Profile"] }
 ];
 
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     flexDirection: "row",
     maxWidth: 430,
-    paddingHorizontal: 8,
-    paddingVertical: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     width: "100%"
   },
   tab: {
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4
   },
   activeTab: {
-    backgroundColor: colors.softOrange,
+    backgroundColor: colors.softCyan,
     borderColor: colors.primary,
     borderWidth: 1
   },

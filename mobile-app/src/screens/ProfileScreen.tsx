@@ -2,8 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../components/AppButton";
 import { AppCard } from "../components/AppCard";
 import { Screen } from "../components/Screen";
-import { ScreenHeader } from "../components/ScreenHeader";
-import { StatusBadge } from "../components/StatusBadge";
 import { getMockUserDisplayName } from "../lib/mockAuth";
 import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
@@ -13,12 +11,11 @@ interface ProfileScreenProps extends ScreenProps {
 }
 
 export function ProfileScreen({
-  goBack,
+  navigate,
   resetToLogin,
   mockUser,
   cars,
   bookings,
-  showBack = true
 }: ProfileScreenProps) {
   const userName = getMockUserDisplayName(mockUser?.fullName, mockUser?.email);
   const userEmail = mockUser?.email ?? "mock@example.com";
@@ -28,125 +25,151 @@ export function ProfileScreen({
     .join("")
     .slice(0, 2)
     .toUpperCase();
+  const serviceCount = bookings.filter((booking) => booking.kind === "Service").length;
+  const activeBookings = bookings.filter((booking) => booking.status === "pending" || booking.status === "approved").length;
 
   return (
     <Screen>
-      <ScreenHeader
-        title="Manfred Auto Hub"
-        subtitle="Your account, garage, and booking summary."
-        onBack={showBack ? goBack : undefined}
-      />
-
-      <AppCard style={styles.profileCard}>
+      <AppCard style={styles.profileHero}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
         <Text style={styles.name}>{userName}</Text>
-        <Text style={styles.meta}>{userEmail}</Text>
-        <View style={styles.rolePill}>
-          <Text style={styles.roleText}>Customer account</Text>
-        </View>
+        <Text style={styles.email}>{userEmail}</Text>
+        <Text style={styles.memberPill}>Manfred customer profile</Text>
       </AppCard>
 
       <View style={styles.stats}>
-        <AppCard style={styles.statCard}>
-          <Text style={styles.statNumber}>{cars.length}</Text>
-          <Text style={styles.statLabel}>Cars</Text>
-        </AppCard>
-        <AppCard style={styles.statCard}>
-          <Text style={styles.statNumber}>{bookings.length}</Text>
-          <Text style={styles.statLabel}>Bookings</Text>
-        </AppCard>
+        <Stat value={String(serviceCount)} label="Services" />
+        <Stat value={String(cars.length)} label="Vehicles" />
+        <Stat value={String(activeBookings)} label="Active" />
       </View>
 
-      <AppCard>
-        <Text style={styles.sectionTitle}>Latest payment status</Text>
-        <View style={styles.paymentRow}>
-          <Text style={styles.paymentText}>{bookings[0]?.title ?? "No active booking"}</Text>
-          <StatusBadge status={bookings[0]?.payment_status ?? "unpaid"} />
-        </View>
-      </AppCard>
+      <View style={styles.menuStack}>
+        <MenuCard title="My Vehicles" detail="Manage saved car profiles" onPress={() => navigate("MyCars")} />
+        <MenuCard title="Settings" detail="Prototype preferences placeholder" />
+        <MenuCard title="Notifications" detail="Service reminders and booking alerts" onPress={() => navigate("Alerts")} />
+        <MenuCard title="Help & Support" detail="Contact the workshop team" />
+      </View>
 
       <AppButton title="Log out" variant="secondary" onPress={resetToLogin} />
     </Screen>
   );
 }
 
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <AppCard style={styles.statCard}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </AppCard>
+  );
+}
+
+function MenuCard({ title, detail, onPress }: { title: string; detail: string; onPress?: () => void }) {
+  return (
+    <AppCard style={styles.menuCard} onPress={onPress}>
+      <View style={styles.menuDot} />
+      <View style={styles.menuCopy}>
+        <Text style={styles.menuTitle}>{title}</Text>
+        <Text style={styles.menuDetail}>{detail}</Text>
+      </View>
+    </AppCard>
+  );
+}
+
 const styles = StyleSheet.create({
-  profileCard: {
-    alignItems: "center"
+  profileHero: {
+    alignItems: "center",
+    backgroundColor: colors.surfaceDark,
+    borderColor: colors.borderStrong
   },
   avatar: {
     alignItems: "center",
-    backgroundColor: colors.softOrange,
+    backgroundColor: colors.softCyan,
     borderColor: colors.primary,
+    borderRadius: 44,
     borderWidth: 1,
-    borderRadius: 40,
-    height: 80,
+    height: 88,
     justifyContent: "center",
-    width: 80
+    width: 88
   },
   avatarText: {
-    color: colors.primary,
-    fontSize: 24,
+    color: colors.primaryDark,
+    fontSize: 28,
     fontWeight: "900"
   },
   name: {
     color: colors.text,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "900",
-    marginTop: 14
+    marginTop: 15
   },
-  meta: {
+  email: {
     color: colors.muted,
     fontSize: 14,
-    marginTop: 4
+    marginTop: 5
   },
-  rolePill: {
-    backgroundColor: colors.softBlue,
+  memberPill: {
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accent,
     borderRadius: 999,
-    marginTop: 14,
+    borderWidth: 1,
+    color: colors.accent,
+    fontSize: 12,
+    fontWeight: "900",
+    marginTop: 15,
     paddingHorizontal: 12,
     paddingVertical: 7
   },
-  roleText: {
-    color: colors.info,
-    fontSize: 12,
-    fontWeight: "900"
-  },
   stats: {
     flexDirection: "row",
-    gap: 12
+    gap: 10
   },
   statCard: {
     alignItems: "center",
-    flex: 1
+    flex: 1,
+    padding: 14
   },
-  statNumber: {
-    color: colors.primary,
-    fontSize: 30,
+  statValue: {
+    color: colors.primaryDark,
+    fontSize: 28,
     fontWeight: "900"
   },
   statLabel: {
     color: colors.muted,
-    fontSize: 13,
-    fontWeight: "700",
-    marginTop: 4
+    fontSize: 11,
+    fontWeight: "900",
+    marginTop: 4,
+    textTransform: "uppercase"
   },
-  sectionTitle: {
+  menuStack: {
+    gap: 12
+  },
+  menuCard: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12
+  },
+  menuDot: {
+    backgroundColor: colors.softCyan,
+    borderColor: colors.primary,
+    borderRadius: 15,
+    borderWidth: 1,
+    height: 30,
+    width: 30
+  },
+  menuCopy: {
+    flex: 1
+  },
+  menuTitle: {
     color: colors.text,
     fontSize: 17,
     fontWeight: "900"
   },
-  paymentRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 14
-  },
-  paymentText: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: "700"
+  menuDetail: {
+    color: colors.muted,
+    fontSize: 13,
+    marginTop: 5
   }
 });

@@ -122,11 +122,11 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
 
   return (
     <Screen>
-      <ScreenHeader title="Book car lift" onBack={goBack} />
+      <ScreenHeader title="Lift Rental Detail" onBack={goBack} />
 
       <View style={styles.hero}>
-        <Text style={styles.eyebrow}>DIY workshop bay</Text>
-        <Text style={styles.heroTitle}>Reserve a pro lift without calling the shop.</Text>
+        <Text style={styles.eyebrow}>Car lift rental</Text>
+        <Text style={styles.heroTitle}>Reserve a Manfred lift bay without calling the shop.</Text>
         <Text style={styles.heroText}>
           Pick a bay, choose an available slot, and send the request for workshop approval.
         </Text>
@@ -152,7 +152,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
         </View>
       </AppCard>
 
-      <AnimatedSectionHeader eyebrow="Step 1" title="Choose a lift bay" />
+      <AnimatedSectionHeader eyebrow="Step 1" title="Lift bay options" />
 
       {mockLifts.map((lift) => (
         <AppCard
@@ -178,7 +178,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
         </AppCard>
       ))}
 
-      <AnimatedSectionHeader eyebrow="Step 2" title="Choose a package" />
+      <AnimatedSectionHeader eyebrow="Step 2" title="Packages" />
 
       {liftPackages.map((item) => (
         <AppCard
@@ -196,7 +196,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
         </AppCard>
       ))}
 
-      <AnimatedSectionHeader eyebrow="Step 3" title="Available time slots" />
+      <AnimatedSectionHeader eyebrow="Step 3" title="Date/time" />
 
       <DateTimeSelector
         label="Preferred date"
@@ -273,7 +273,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
 
       <View style={styles.summaryBox}>
         <View>
-          <Text style={styles.noticeTitle}>Booking summary</Text>
+          <Text style={styles.noticeTitle}>Price summary</Text>
           <Text style={styles.noticeText}>{selectedLift?.name ?? "Choose a lift"} - {selectedPackage.name} - {selectedSlot}</Text>
           <Text style={styles.depositText}>Deposit may be required after admin approval.</Text>
         </View>
@@ -315,7 +315,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
 
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <AppButton
-        title={safetyAccepted ? "Request lift booking" : "Accept safety agreement to continue"}
+        title={safetyAccepted ? "Request Booking" : "Accept safety agreement to continue"}
         disabled={!safetyAccepted}
         loading={isSubmitting}
         onPress={handleSubmit}
