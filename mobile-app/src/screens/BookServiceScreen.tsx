@@ -48,7 +48,7 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
       car_label: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : "Saved car",
       status: "pending",
       payment_status: "unpaid",
-      detail: `${photoUrl.trim() ? "Photo link added. " : ""}${photoCaption.trim() || notes.trim() || "Waiting for workshop review."}`,
+      detail: `${photoUrl.trim() ? "Visual reference added. " : ""}${photoCaption.trim() || notes.trim() || "Waiting for workshop review."}`,
       estimated_price: selectedService.estimated_price,
       reference_number: referenceNumber
     });
@@ -64,7 +64,7 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
           eyebrow="Service request submitted"
           title="Your service request is in the workshop queue."
           referenceNumber={successReference}
-          message="An admin will review the selected service, notes, and preferred time before confirming this mock booking."
+          message="The workshop team will review the selected service, notes, and preferred time before confirming the appointment."
           primaryActionLabel="View My Bookings"
           onPrimaryAction={() => navigate("MyBookings")}
           secondaryActionLabel="Back Home"
@@ -86,8 +86,8 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
 
       {cars.length === 0 ? (
         <AppCard>
-          <Text style={styles.carName}>No cars found</Text>
-          <Text style={styles.meta}>Add a car before booking a service.</Text>
+          <Text style={styles.carName}>Add a vehicle profile</Text>
+          <Text style={styles.meta}>A saved vehicle helps the workshop prepare the right service notes.</Text>
           <AppButton title="Add car" variant="secondary" onPress={() => navigate("AddCar")} />
         </AppCard>
       ) : null}
@@ -123,12 +123,12 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
       ))}
 
       <AppInput
-        label="Issue photo link"
-        placeholder="Paste a photo URL for now"
+        label="Visual reference"
+        placeholder="Describe any dashboard light, leak, or visible issue"
         value={photoUrl}
         onChangeText={setPhotoUrl}
       />
-      <Text style={styles.helperText}>Real photo upload can be added later.</Text>
+      <Text style={styles.helperText}>Add any visual context that helps the workshop prepare.</Text>
       <AppInput
         label="Photo caption"
         placeholder="Example: warning light on dashboard"
@@ -138,7 +138,7 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
       <DateTimeSelector
         label="Preferred date and time"
         value="Three days from today at this time"
-        helperText="This will become a real picker later."
+        helperText="The workshop will confirm the final appointment window."
       />
       <AppInput
         label="Notes for workshop"
@@ -151,7 +151,7 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
 
       <View style={styles.paymentBox}>
         <Text style={styles.paymentTitle}>Payment status</Text>
-        <Text style={styles.paymentText}>This request will start as unpaid. No real payment is collected in the MVP.</Text>
+        <Text style={styles.paymentText}>Payment is handled after the workshop confirms the appointment.</Text>
       </View>
 
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}

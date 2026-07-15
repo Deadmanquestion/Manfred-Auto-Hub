@@ -14,7 +14,7 @@ const tabs: Array<{ label: string; screen: MainTab; match: ScreenName[] }> = [
   { label: "Booking", screen: "Booking", match: ["Booking", "BookLift", "BookService", "MyBookings", "WorkshopDetail", "BookingSummary", "LiftBookingSummary", "ServiceBookingSummary"] },
   { label: "Vehicle", screen: "Vehicle", match: ["Vehicle", "MyCars", "AddCar"] },
   { label: "Alerts", screen: "Alerts", match: ["Alerts"] },
-  { label: "Profile", screen: "Profile", match: ["Profile"] }
+  { label: "Profile", screen: "Profile", match: ["Profile", "InvestorDashboard"] }
 ];
 
 export function BottomTabNav({ activeScreen, onChangeTab }: BottomTabNavProps) {

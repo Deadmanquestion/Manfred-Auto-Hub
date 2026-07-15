@@ -57,7 +57,7 @@ export function AddCarScreen({ navigate, goBack, addMockCar }: ScreenProps) {
           eyebrow="Car profile saved"
           title="Your car is ready for bookings."
           referenceNumber={successReference}
-          message="This mock car profile has been added to My Cars for the current prototype session. You can now use it when booking a service or car lift."
+          message="This vehicle profile has been added to your garage. You can now use it when booking a service or car lift."
           primaryActionLabel="View My Cars"
           onPrimaryAction={() => navigate("MyCars")}
           secondaryActionLabel="Back Home"
@@ -97,7 +97,7 @@ export function AddCarScreen({ navigate, goBack, addMockCar }: ScreenProps) {
 
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
       <AppButton title="Save car" loading={isSaving} onPress={handleSaveCar} />
-      <Text style={styles.note}>Mock mode: the car is saved locally for this demo session.</Text>
+      <Text style={styles.note}>Vehicle details are ready for service and lift bookings.</Text>
     </Screen>
   );
 }

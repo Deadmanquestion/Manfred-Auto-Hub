@@ -32,7 +32,7 @@ export function SuccessState({
       <Text style={styles.eyebrow}>{eyebrow}</Text>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.referenceBox}>
-        <Text style={styles.referenceLabel}>Mock reference number</Text>
+        <Text style={styles.referenceLabel}>Reference number</Text>
         <Text style={styles.referenceNumber}>{referenceNumber}</Text>
       </View>
       <Text style={styles.message}>{message}</Text>

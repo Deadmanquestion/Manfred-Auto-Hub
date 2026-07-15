@@ -1,5 +1,11 @@
 import type { BookingSummary, CarSummary, LiftSummary, ServiceMenuItem } from "../types/ui";
 
+export const demoUser = {
+  fullName: "Lee Wei Cheng",
+  email: "lee.weicheng@manfredautohub.com",
+  phone: "+65 8123 4567"
+};
+
 export const mockCars: CarSummary[] = [
   {
     id: "car-1",
@@ -17,7 +23,16 @@ export const mockCars: CarSummary[] = [
     year: 2021,
     license_plate: "SLB 1198P",
     color: "Graphite gray",
-    next_service: "Tire rotation in 2 months"
+    next_service: "Brake inspection scheduled"
+  },
+  {
+    id: "car-3",
+    make: "Proton",
+    model: "Persona",
+    year: 2020,
+    license_plate: "JQV 7321",
+    color: "Metallic silver",
+    next_service: "Battery health check recommended"
   }
 ];
 
@@ -55,23 +70,30 @@ export const mockLifts: LiftSummary[] = [
 export const mockServiceMenu: ServiceMenuItem[] = [
   {
     id: "service-1",
-    name: "Oil change",
-    description: "Engine oil and filter replacement with quick inspection.",
+    name: "Engine Oil Service",
+    description: "Engine oil and filter replacement with a professional multi-point inspection.",
     estimated_price: 80,
     estimated_duration_minutes: 60
   },
   {
     id: "service-2",
-    name: "Brake inspection",
-    description: "Brake pads, rotors, and fluid safety check.",
+    name: "Brake Inspection",
+    description: "Brake pads, rotors, fluid condition, and safety check.",
     estimated_price: 60,
     estimated_duration_minutes: 60
   },
   {
     id: "service-3",
-    name: "Diagnostic scan",
-    description: "OBD scan and issue review before repair approval.",
-    estimated_price: 50,
+    name: "Suspension Check",
+    description: "Shocks, bushings, control arms, and road-feel inspection.",
+    estimated_price: 75,
+    estimated_duration_minutes: 75
+  },
+  {
+    id: "service-4",
+    name: "Battery Replacement",
+    description: "Battery health test, replacement recommendation, and fitting support.",
+    estimated_price: 120,
     estimated_duration_minutes: 45
   }
 ];
@@ -80,7 +102,7 @@ export const mockBookings: BookingSummary[] = [
   {
     id: "booking-1",
     kind: "Service",
-    title: "Brake inspection",
+    title: "Brake Inspection",
     date_label: "Tue, 25 Jun at 10:30 AM",
     car_label: "Toyota Corolla Altis",
     status: "approved",
@@ -92,7 +114,7 @@ export const mockBookings: BookingSummary[] = [
   {
     id: "booking-2",
     kind: "Lift",
-    title: "Lift Bay 1 rental",
+    title: "Basic Lift Rental",
     date_label: "Sat, 29 Jun at 2:00 PM",
     car_label: "Honda Civic",
     status: "pending",
@@ -104,7 +126,7 @@ export const mockBookings: BookingSummary[] = [
   {
     id: "booking-3",
     kind: "Service",
-    title: "Oil change",
+    title: "Engine Oil Service",
     date_label: "Completed on 12 Jun",
     car_label: "Toyota Corolla Altis",
     status: "completed",
@@ -116,7 +138,7 @@ export const mockBookings: BookingSummary[] = [
   {
     id: "booking-4",
     kind: "Application",
-    title: "Apprentice mechanic application",
+    title: "Apprentice Mechanic Application",
     date_label: "Submitted on 18 Jun",
     car_label: "Workshop team",
     status: "pending",

@@ -4,6 +4,7 @@ import { AppButton } from "../components/AppButton";
 import { AppInput } from "../components/AppInput";
 import { Screen } from "../components/Screen";
 import { ScreenHeader } from "../components/ScreenHeader";
+import { demoUser } from "../data/mockData";
 import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
 
@@ -12,28 +13,9 @@ export function RegisterScreen({ navigate, goBack, setMockUser }: ScreenProps) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
 
   function handleRegister() {
-    setErrorMessage("");
-
-    if (!fullName.trim() || !email.trim() || !password) {
-      setErrorMessage("Enter your name, email, and password.");
-      return;
-    }
-
-    if (password.length < 6) {
-      setErrorMessage("Password should be at least 6 characters.");
-      return;
-    }
-
-    // Supabase auth will be re-enabled later. For now, registration creates a local mock user only.
-    setMockUser({
-      fullName: fullName.trim(),
-      email: email.trim(),
-      phone: phone.trim()
-    });
-
+    setMockUser(demoUser);
     navigate("Home");
   }
 
@@ -57,12 +39,11 @@ export function RegisterScreen({ navigate, goBack, setMockUser }: ScreenProps) {
         />
         <AppInput label="Phone" placeholder="+65 8123 4567" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
         <AppInput label="Password" placeholder="Create password" secureTextEntry value={password} onChangeText={setPassword} />
-        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
         <AppButton title="Register" onPress={handleRegister} />
         <AppButton title="I already have an account" variant="ghost" onPress={() => navigate("Login")} />
       </View>
 
-      <Text style={styles.note}>Mock mode: registration saves a temporary local user for this prototype session.</Text>
+      <Text style={styles.note}>Investor demo profile will open with a complete customer history.</Text>
     </Screen>
   );
 }

@@ -8,8 +8,8 @@ import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
 
 const services = [
-  { label: "Brake inspection", price: 60 },
-  { label: "Diagnostic scan", price: 50 },
+  { label: "Brake Inspection", price: 60 },
+  { label: "Suspension Check", price: 75 },
   { label: "Workshop handling", price: 15 }
 ];
 
@@ -21,7 +21,7 @@ export function BookingSummaryScreen({ navigate, goBack, cars }: ScreenProps) {
     <Screen>
       <ScreenHeader
         title="Booking Summary"
-        subtitle="Mock approved workshop appointment"
+        subtitle="Approved workshop appointment"
         onBack={goBack}
       />
 
@@ -33,7 +33,7 @@ export function BookingSummaryScreen({ navigate, goBack, cars }: ScreenProps) {
           </View>
           <StatusBadge status="approved" />
         </View>
-        <Text style={styles.muted}>Your appointment is approved in this mock demo. Payment is still a placeholder for the MVP.</Text>
+        <Text style={styles.muted}>Your appointment is approved. Payment is handled after workshop confirmation.</Text>
       </AppCard>
 
       <InfoBlock
@@ -59,7 +59,7 @@ export function BookingSummaryScreen({ navigate, goBack, cars }: ScreenProps) {
       <InfoBlock
         title="Vehicle details"
         rows={[
-          ["Vehicle", selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : "Mock vehicle"],
+          ["Vehicle", selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : "Customer vehicle"],
           ["Plate", selectedCar?.license_plate ?? "MAH 0000"],
           ["Color", selectedCar?.color ?? "Not set"]
         ]}

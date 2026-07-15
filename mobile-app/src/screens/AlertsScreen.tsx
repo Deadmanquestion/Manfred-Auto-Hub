@@ -70,7 +70,7 @@ export function AlertsScreen({ navigate }: ScreenProps) {
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Alerts</Text>
         <Text style={styles.heroTitle}>Workshop updates you can act on.</Text>
-        <Text style={styles.heroText}>Mock notifications for approvals, reminders, completed work, and parts pickup.</Text>
+        <Text style={styles.heroText}>Customer notifications for approvals, reminders, completed work, and parts pickup.</Text>
       </View>
 
       <View style={styles.filterRow}>

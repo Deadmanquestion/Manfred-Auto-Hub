@@ -3,29 +3,16 @@ import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../components/AppButton";
 import { AppInput } from "../components/AppInput";
 import { Screen } from "../components/Screen";
-import { getDisplayNameFromEmail } from "../lib/mockAuth";
+import { demoUser } from "../data/mockData";
 import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
 
 export function LoginScreen({ navigate, setMockUser }: ScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
 
   function handleLogin() {
-    setErrorMessage("");
-
-    if (!email.trim() || !password) {
-      setErrorMessage("Enter your email and password.");
-      return;
-    }
-
-    // Supabase auth will be re-enabled later. For now, any email and password logs into the prototype.
-    setMockUser({
-      fullName: getDisplayNameFromEmail(email),
-      email: email.trim(),
-    });
-
+    setMockUser(demoUser);
     navigate("Home");
   }
 
@@ -53,12 +40,11 @@ export function LoginScreen({ navigate, setMockUser }: ScreenProps) {
           value={password}
           onChangeText={setPassword}
         />
-        {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
         <AppButton title="Log in" onPress={handleLogin} />
         <AppButton title="Create an account" variant="secondary" onPress={() => navigate("Register")} />
       </View>
 
-      <Text style={styles.note}>Mock mode: any email and password will sign in.</Text>
+      <Text style={styles.note}>Investor demo access is ready. Enter any details to continue.</Text>
     </Screen>
   );
 }

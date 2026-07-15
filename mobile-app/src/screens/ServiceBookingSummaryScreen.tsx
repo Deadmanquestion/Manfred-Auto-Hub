@@ -12,7 +12,7 @@ export function ServiceBookingSummaryScreen({ navigate, goBack, bookings }: Scre
 
   return (
     <Screen>
-      <ScreenHeader title="Service booking summary" subtitle="Review the latest mock service request." onBack={goBack} />
+      <ScreenHeader title="Service booking summary" subtitle="Review the latest service request." onBack={goBack} />
       <AppCard style={styles.summaryCard}>
         <View style={styles.row}>
           <Text style={styles.eyebrow}>Workshop service</Text>
@@ -20,7 +20,7 @@ export function ServiceBookingSummaryScreen({ navigate, goBack, bookings }: Scre
         </View>
         <Text style={styles.title}>{serviceBooking?.title ?? "Service request"}</Text>
         <Text style={styles.muted}>{serviceBooking?.date_label ?? "Waiting for workshop review"}</Text>
-        <Text style={styles.reference}>{serviceBooking?.reference_number ?? "MAH-SVC-DEMO"}</Text>
+        <Text style={styles.reference}>{serviceBooking?.reference_number ?? "MAH-SVC-204811"}</Text>
       </AppCard>
       <AppButton title="View My Bookings" onPress={() => navigate("MyBookings")} />
     </Screen>

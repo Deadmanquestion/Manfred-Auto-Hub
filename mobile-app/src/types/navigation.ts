@@ -18,6 +18,7 @@ export type ScreenName =
   | "BookingSummary"
   | "LiftBookingSummary"
   | "ServiceBookingSummary"
+  | "InvestorDashboard"
   | "Profile";
 
 export interface ScreenProps {

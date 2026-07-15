@@ -9,6 +9,7 @@ import { BookServiceScreen } from "./src/screens/BookServiceScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { VehicleScreen } from "./src/screens/VehicleScreen";
 import { AlertsScreen } from "./src/screens/AlertsScreen";
+import { InvestorDashboardScreen } from "./src/screens/InvestorDashboardScreen";
 import { JobApplicationScreen } from "./src/screens/JobApplicationScreen";
 import { LoginScreen } from "./src/screens/LoginScreen";
 import { BookingSummaryScreen } from "./src/screens/BookingSummaryScreen";
@@ -154,6 +155,10 @@ export default function App() {
 
     if (screen === "BookingSummary") {
       return <BookingSummaryScreen {...navigation} />;
+    }
+
+    if (screen === "InvestorDashboard") {
+      return <InvestorDashboardScreen {...navigation} />;
     }
 
     if (screen === "Profile") {

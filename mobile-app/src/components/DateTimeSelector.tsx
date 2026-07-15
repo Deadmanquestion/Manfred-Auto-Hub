@@ -14,7 +14,7 @@ export function DateTimeSelector({ label, value, helperText }: DateTimeSelectorP
       <Text style={styles.label}>{label}</Text>
       <AppCard style={styles.selector}>
         <Text style={styles.value}>{value}</Text>
-        <Text style={styles.placeholder}>Date and time picker placeholder</Text>
+        <Text style={styles.supportingText}>Workshop schedule selection</Text>
       </AppCard>
       {helperText ? <Text style={styles.helper}>{helperText}</Text> : null}
     </View>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800"
   },
-  placeholder: {
+  supportingText: {
     color: colors.muted,
     fontSize: 13
   },

@@ -23,8 +23,8 @@ export function MyCarsScreen({ navigate, goBack, cars, showBack = true }: MyCars
 
       {cars.length === 0 ? (
         <AppCard>
-          <Text style={styles.emptyTitle}>No cars yet</Text>
-          <Text style={styles.emptyText}>Add your first car so service and lift bookings are easier.</Text>
+          <Text style={styles.emptyTitle}>Add a vehicle profile</Text>
+          <Text style={styles.emptyText}>Vehicle profiles make service and lift bookings easier for the workshop team.</Text>
         </AppCard>
       ) : null}
 

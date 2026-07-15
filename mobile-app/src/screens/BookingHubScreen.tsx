@@ -100,7 +100,7 @@ export function BookingHubScreen({ navigate, bookings }: ScreenProps) {
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Booking</Text>
         <Text style={styles.heroTitle}>Find the right workshop slot for your car.</Text>
-        <Text style={styles.heroText}>Search mock lift rentals, repair services, and parts support from Manfred Auto Hub.</Text>
+        <Text style={styles.heroText}>Search lift rentals, repair services, and parts support from Manfred Auto Hub.</Text>
       </View>
 
       <AppInput label="Search" placeholder="Search lift, oil change, brake check..." />

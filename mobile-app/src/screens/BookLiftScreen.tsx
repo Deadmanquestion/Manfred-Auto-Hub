@@ -110,7 +110,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
           eyebrow="Lift request submitted"
           title="Your lift booking is pending approval."
           referenceNumber={successReference}
-          message="The workshop team will check bay availability, safety requirements, and add-ons before approving this mock request."
+          message="The workshop team will check bay availability, safety requirements, and add-ons before confirming the booking."
           primaryActionLabel="View My Bookings"
           onPrimaryAction={() => navigate("MyBookings")}
           secondaryActionLabel="Back Home"
@@ -200,8 +200,8 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
 
       <DateTimeSelector
         label="Preferred date"
-        value="Date picker placeholder"
-        helperText="A real calendar picker can be added later."
+        value="Select from available workshop slots"
+        helperText="The selected slot will be reviewed by the workshop team."
       />
       <View style={styles.optionGrid}>
         {timeSlots.map((slot) => (
@@ -240,8 +240,8 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
       <AnimatedSectionHeader eyebrow="Step 5" title="Select vehicle" />
       {cars.length === 0 ? (
         <AppCard>
-          <Text style={styles.title}>No car selected</Text>
-          <Text style={styles.meta}>You can still request a lift, or add a car first.</Text>
+          <Text style={styles.title}>Add a vehicle profile</Text>
+          <Text style={styles.meta}>A saved vehicle helps the team prepare the correct bay and safety notes.</Text>
           <AppButton title="Add car" variant="secondary" onPress={() => navigate("AddCar")} />
         </AppCard>
       ) : null}

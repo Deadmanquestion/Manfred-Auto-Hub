@@ -18,7 +18,7 @@ export function ProfileScreen({
   bookings,
 }: ProfileScreenProps) {
   const userName = getMockUserDisplayName(mockUser?.fullName, mockUser?.email);
-  const userEmail = mockUser?.email ?? "mock@example.com";
+  const userEmail = mockUser?.email ?? "lee.weicheng@manfredautohub.com";
   const initials = userName
     .split(" ")
     .map((part) => part[0])
@@ -46,8 +46,9 @@ export function ProfileScreen({
       </View>
 
       <View style={styles.menuStack}>
+        <MenuCard title="Business Dashboard" detail="Revenue model and operating metrics" onPress={() => navigate("InvestorDashboard")} />
         <MenuCard title="My Vehicles" detail="Manage saved car profiles" onPress={() => navigate("MyCars")} />
-        <MenuCard title="Settings" detail="Prototype preferences placeholder" />
+        <MenuCard title="Settings" detail="Account, vehicle, and workshop preferences" />
         <MenuCard title="Notifications" detail="Service reminders and booking alerts" onPress={() => navigate("Alerts")} />
         <MenuCard title="Help & Support" detail="Contact the workshop team" />
       </View>

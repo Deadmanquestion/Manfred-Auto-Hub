@@ -79,7 +79,7 @@ function BookingSection(props: {
       </View>
       {props.records.length === 0 ? (
         <AppCard style={styles.emptyCard}>
-          <Text style={styles.emptyTitle}>No records yet</Text>
+          <Text style={styles.emptyTitle}>Ready for new activity</Text>
           <Text style={styles.emptyText}>{props.emptyMessage}</Text>
           <AppButton
             title={props.emptyActionLabel}

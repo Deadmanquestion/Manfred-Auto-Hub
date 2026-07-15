@@ -12,15 +12,15 @@ export function LiftBookingSummaryScreen({ navigate, goBack, bookings }: ScreenP
 
   return (
     <Screen>
-      <ScreenHeader title="Lift booking summary" subtitle="Review the latest mock lift request." onBack={goBack} />
+      <ScreenHeader title="Lift booking summary" subtitle="Review the latest lift rental request." onBack={goBack} />
       <AppCard style={styles.summaryCard}>
         <View style={styles.row}>
           <Text style={styles.eyebrow}>Lift rental</Text>
           <StatusBadge status={liftBooking?.status ?? "pending"} />
         </View>
-        <Text style={styles.title}>{liftBooking?.title ?? "Lift Bay 1 rental"}</Text>
+        <Text style={styles.title}>{liftBooking?.title ?? "Basic Lift Rental"}</Text>
         <Text style={styles.muted}>{liftBooking?.date_label ?? "Pending slot confirmation"}</Text>
-        <Text style={styles.reference}>{liftBooking?.reference_number ?? "MAH-LIFT-DEMO"}</Text>
+        <Text style={styles.reference}>{liftBooking?.reference_number ?? "MAH-LIFT-204812"}</Text>
       </AppCard>
       <AppButton title="View My Bookings" onPress={() => navigate("MyBookings")} />
     </Screen>

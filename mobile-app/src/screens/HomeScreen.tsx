@@ -27,7 +27,7 @@ export function HomeScreen({ navigate, mockUser, cars, bookings }: ScreenProps) 
   const selectedCar = cars[0];
   const displayName = getMockUserDisplayName(mockUser?.fullName, mockUser?.email);
   const firstName = displayName.split(" ")[0] || "Driver";
-  const recentBookings = bookings.slice(0, 2);
+  const recentBookings = bookings.slice(0, 3);
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -161,7 +161,7 @@ export function HomeScreen({ navigate, mockUser, cars, bookings }: ScreenProps) 
           <View style={styles.flex}>
             <Text style={styles.eyebrow}>Car health preview</Text>
             <Text style={styles.cardTitle}>82/100 overall health</Text>
-            <Text style={styles.muted}>Brakes and fluids need attention soon. Everything else looks stable in mock diagnostics.</Text>
+            <Text style={styles.muted}>Brakes and fluids need attention soon. Everything else looks stable in the vehicle health check.</Text>
           </View>
           <View style={styles.healthRing}>
             <Text style={styles.healthScore}>82</Text>

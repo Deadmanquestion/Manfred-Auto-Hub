@@ -6,7 +6,7 @@ import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
 
 const componentStatuses = [
-  { name: "Engine", status: "Good", detail: "No critical mock issues", score: "92", tone: "success" },
+  { name: "Engine", status: "Good", detail: "No urgent issues detected", score: "92", tone: "success" },
   { name: "Brakes", status: "Check soon", detail: "Inspection recommended", score: "74", tone: "warning" },
   { name: "Battery", status: "Good", detail: "Voltage looks stable", score: "88", tone: "success" },
   { name: "Tires", status: "Monitor", detail: "Rotation due soon", score: "79", tone: "info" },
@@ -28,7 +28,7 @@ export function VehicleScreen({ navigate, cars }: ScreenProps) {
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Vehicle dashboard</Text>
         <Text style={styles.heroTitle}>{vehicleLabel}</Text>
-        <Text style={styles.heroText}>Mock car health, reminders, and recommended actions for the workshop demo.</Text>
+        <Text style={styles.heroText}>Vehicle health, reminders, and recommended actions for a premium workshop experience.</Text>
         <View style={styles.heroActions}>
           <AppButton title="My Vehicles" variant="secondary" onPress={() => navigate("MyCars")} style={styles.heroButton} />
           <AppButton title="Book Service" onPress={() => navigate("BookService")} style={styles.heroButton} />
@@ -65,7 +65,7 @@ export function VehicleScreen({ navigate, cars }: ScreenProps) {
         <Text style={styles.eyebrow}>Recommended actions</Text>
         <Text style={styles.cardTitle}>Brake inspection and oil service</Text>
         <Text style={styles.muted}>
-          This is mock guidance for the prototype, showing how Manfred can later become a service history assistant.
+          These recommendations help customers understand service priorities before booking.
         </Text>
         <AppButton title="Book recommended service" onPress={() => navigate("BookService")} style={styles.cta} />
       </AppCard>
