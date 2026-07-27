@@ -29,8 +29,10 @@ export interface ScreenProps {
   setMockUser: (user: MockUser) => void;
   cars: CarSummary[];
   bookings: BookingSummary[];
-  addMockCar: (car: Omit<CarSummary, "id">) => void;
-  addMockBooking: (booking: Omit<BookingSummary, "id">) => void;
+  addMockCar: (car: Omit<CarSummary, "id">) => Promise<void>;
+  addMockBooking: (booking: Omit<BookingSummary, "id">) => Promise<void>;
+  cancelBooking: (booking: BookingSummary) => Promise<void>;
+  refreshData: () => Promise<void>;
 }
 
 export interface MockUser {

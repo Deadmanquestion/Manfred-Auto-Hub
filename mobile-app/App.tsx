@@ -2,6 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Platform, StatusBar, StyleSheet, useWindowDimensions, View } from "react-native";
 import { BottomTabNav } from "./src/components/BottomTabNav";
 import { mockBookings, mockCars } from "./src/data/mockData";
+import {
+  addCar,
+  cancelBooking as cancelStoredBooking,
+  listCars,
+  listUserBookings
+} from "./src/lib/database";
+import { hasSupabaseEnv, supabase } from "./src/lib/supabase";
 import { AddCarScreen } from "./src/screens/AddCarScreen";
 import { BookingHubScreen } from "./src/screens/BookingHubScreen";
 import { BookLiftScreen } from "./src/screens/BookLiftScreen";
@@ -34,9 +41,74 @@ export default function App() {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.title = "Manfred Auto Hub";
+      document.title = "ManFix Technician";
     }
   }, []);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv) return;
+
+    let active = true;
+
+    async function loadSession() {
+      const { data } = await supabase.auth.getSession();
+      if (!active) return;
+
+      if (!data.session?.user) {
+        setCars([]);
+        setBookings([]);
+        setScreen("Login");
+        return;
+      }
+
+      const user = data.session.user;
+      setMockUser({
+        email: user.email ?? "",
+        fullName: String(user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "ManFix customer"),
+        phone: user.phone ?? undefined
+      });
+      setScreen("Home");
+      await refreshData();
+    }
+
+    void loadSession();
+
+    const { data: authSubscription } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT" && active) {
+        setMockUser(null);
+        setCars([]);
+        setBookings([]);
+        setHistory([]);
+        setScreen("Login");
+      }
+    });
+
+    const channel = supabase
+      .channel("mobile-booking-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "service_bookings" }, () => {
+        void refreshData();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lift_bookings" }, () => {
+        void refreshData();
+      })
+      .subscribe();
+
+    return () => {
+      active = false;
+      authSubscription.subscription.unsubscribe();
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
+  async function refreshData() {
+    if (!hasSupabaseEnv) return;
+    const [storedCars, storedBookings] = await Promise.all([
+      listCars(),
+      listUserBookings()
+    ]);
+    setCars(storedCars);
+    setBookings(storedBookings);
+  }
 
   const navigation = useMemo<ScreenProps>(
     () => ({
@@ -50,6 +122,16 @@ export default function App() {
         setScreen(previousScreen ?? "Home");
       },
       resetToLogin: () => {
+        if (hasSupabaseEnv) {
+          void supabase.auth.signOut().finally(() => {
+            setMockUser(null);
+            setCars([]);
+            setBookings([]);
+            setHistory([]);
+            setScreen("Login");
+          });
+          return;
+        }
         setMockUser(null);
         setHistory([]);
         setScreen("Login");
@@ -58,7 +140,19 @@ export default function App() {
       setMockUser,
       cars,
       bookings,
-      addMockCar: (car) => {
+      addMockCar: async (car) => {
+        if (hasSupabaseEnv) {
+          await addCar({
+            color: car.color,
+            license_plate: car.license_plate,
+            make: car.make,
+            model: car.model,
+            notes: car.next_service,
+            year: car.year
+          });
+          await refreshData();
+          return;
+        }
         setCars((currentCars) => [
           {
             ...car,
@@ -67,7 +161,7 @@ export default function App() {
           ...currentCars
         ]);
       },
-      addMockBooking: (booking) => {
+      addMockBooking: async (booking) => {
         setBookings((currentBookings) => [
           {
             ...booking,
@@ -75,7 +169,20 @@ export default function App() {
           },
           ...currentBookings
         ]);
-      }
+      },
+      cancelBooking: async (booking) => {
+        if (hasSupabaseEnv) {
+          await cancelStoredBooking(booking);
+          await refreshData();
+          return;
+        }
+        setBookings((currentBookings) => currentBookings.map((currentBooking) => (
+          currentBooking.id === booking.id
+            ? { ...currentBooking, status: "cancelled" }
+            : currentBooking
+        )));
+      },
+      refreshData
     }),
     [bookings, cars, history, mockUser, screen]
   );

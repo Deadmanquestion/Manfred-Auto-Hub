@@ -64,18 +64,14 @@ interface LiftBookingRow {
   created_at: string;
 }
 
-interface LiftUnavailableSlotRow {
-  id: string;
-  lift_id: string;
-  blocked_start_at: string;
-  blocked_end_at: string;
-  reason: string | null;
+interface BusyLiftSlotRow {
+  starts_at: string;
+  ends_at: string;
 }
 
 const WORKSHOP_OPEN_HOUR = 8;
 const WORKSHOP_CLOSE_HOUR = 18;
 const BOOKING_DURATION_HOURS = 2;
-const BOOKING_BUFFER_MINUTES = 15;
 
 function requireEnv() {
   const envError = getSupabaseEnvError();
@@ -120,10 +116,6 @@ function formatDateLabel(value: string) {
   }).format(new Date(value));
 }
 
-function addMinutes(date: Date, minutes: number) {
-  return new Date(date.getTime() + minutes * 60 * 1000);
-}
-
 function rangesOverlap(startA: Date, endA: Date, startB: Date, endB: Date) {
   return startA < endB && endA > startB;
 }
@@ -153,33 +145,18 @@ function formatSlotLabel(start: Date, end: Date) {
 function isSlotAvailable(
   slotStart: Date,
   slotEnd: Date,
-  bookings: LiftBookingRow[],
-  blockedSlots: LiftUnavailableSlotRow[]
+  busySlots: BusyLiftSlotRow[]
 ) {
-  const conflictsWithBooking = bookings.some((booking) => {
-    const bookingStart = new Date(booking.requested_start_at);
-    const bookingEndWithBuffer = addMinutes(
-      new Date(booking.requested_end_at),
-      BOOKING_BUFFER_MINUTES
-    );
-
-    // Customer-facing conflict check mirrors the database trigger:
-    // a slot is unavailable if it overlaps a live booking, including the
-    // required 15-minute cleanup buffer after that booking ends.
-    return rangesOverlap(slotStart, slotEnd, bookingStart, bookingEndWithBuffer);
-  });
-
-  const conflictsWithAdminBlock = blockedSlots.some((blockedSlot) => {
-    // Admin blocked slots are exact unavailable windows. Any overlap hides the slot.
+  const hasConflict = busySlots.some((busySlot) => {
     return rangesOverlap(
       slotStart,
       slotEnd,
-      new Date(blockedSlot.blocked_start_at),
-      new Date(blockedSlot.blocked_end_at)
+      new Date(busySlot.starts_at),
+      new Date(busySlot.ends_at)
     );
   });
 
-  return !conflictsWithBooking && !conflictsWithAdminBlock;
+  return !hasConflict;
 }
 
 export async function listCars() {
@@ -275,29 +252,17 @@ export async function listAvailableLiftSlots(liftId: string, daysToShow = 7) {
   const rangeEnd = new Date(rangeStart);
   rangeEnd.setDate(rangeEnd.getDate() + daysToShow);
 
-  const [bookingsResult, blockedSlotsResult] = await Promise.all([
-    supabase
-      .from("lift_bookings")
-      .select("id, car_id, lift_id, requested_start_at, requested_end_at, status, payment_status, customer_notes, created_at")
-      .eq("lift_id", liftId)
-      .in("status", ["pending", "approved", "completed"])
-      .lt("requested_start_at", rangeEnd.toISOString())
-      .gt("requested_end_at", rangeStart.toISOString()),
-    supabase
-      .from("lift_unavailable_slots")
-      .select("id, lift_id, blocked_start_at, blocked_end_at, reason")
-      .eq("lift_id", liftId)
-      .lt("blocked_start_at", rangeEnd.toISOString())
-      .gt("blocked_end_at", rangeStart.toISOString())
-  ]);
+  const { data, error } = await supabase.rpc("manfix_list_lift_busy_slots", {
+    target_lift_id: liftId,
+    range_start: rangeStart.toISOString(),
+    range_end: rangeEnd.toISOString()
+  });
 
-  const firstError = bookingsResult.error || blockedSlotsResult.error;
-  if (firstError) {
-    throw new Error(firstError.message);
+  if (error) {
+    throw new Error(error.message);
   }
 
-  const bookings = (bookingsResult.data ?? []) as LiftBookingRow[];
-  const blockedSlots = (blockedSlotsResult.data ?? []) as LiftUnavailableSlotRow[];
+  const busySlots = (data ?? []) as BusyLiftSlotRow[];
   const slots: LiftAvailabilitySlot[] = [];
 
   for (let dayOffset = 0; dayOffset < daysToShow; dayOffset += 1) {
@@ -322,7 +287,7 @@ export async function listAvailableLiftSlots(liftId: string, daysToShow = 7) {
         continue;
       }
 
-      if (isSlotAvailable(slotStart, slotEnd, bookings, blockedSlots)) {
+      if (isSlotAvailable(slotStart, slotEnd, busySlots)) {
         slots.push({
           id: `${liftId}-${slotStart.toISOString()}`,
           lift_id: liftId,
@@ -382,6 +347,8 @@ export async function createServiceBooking(input: {
       throw new Error(photoError.message);
     }
   }
+
+  return data.id;
 }
 
 export async function createLiftBooking(input: {
@@ -403,20 +370,26 @@ export async function createLiftBooking(input: {
     throw new Error("Selected lift booking time is unavailable. Please choose another slot.");
   }
 
-  const { error } = await supabase.from("lift_bookings").insert({
-    user_id: userId,
-    car_id: input.car_id || null,
-    lift_id: input.lift_id,
-    requested_start_at: input.requested_start_at,
-    requested_end_at: input.requested_end_at,
-    customer_notes: input.customer_notes || null,
-    status: "pending",
-    payment_status: "unpaid"
-  });
+  const { data, error } = await supabase
+    .from("lift_bookings")
+    .insert({
+      user_id: userId,
+      car_id: input.car_id || null,
+      lift_id: input.lift_id,
+      requested_start_at: input.requested_start_at,
+      requested_end_at: input.requested_end_at,
+      customer_notes: input.customer_notes || null,
+      status: "pending",
+      payment_status: "unpaid"
+    })
+    .select("id")
+    .single();
 
   if (error) {
     throw new Error(error.message);
   }
+
+  return data.id;
 }
 
 export async function listUserBookings() {
@@ -454,8 +427,9 @@ export async function listUserBookings() {
     ((liftsResult.data ?? []) as LiftRow[]).map((lift) => [lift.id, lift.name])
   );
 
-  const serviceBookings = ((serviceResult.data ?? []) as ServiceBookingRow[]).map<BookingSummary>(
-    (booking) => ({
+  const serviceBookings = ((serviceResult.data ?? []) as ServiceBookingRow[])
+    .filter((booking) => !["cancelled", "rejected"].includes(booking.status))
+    .map<BookingSummary>((booking) => ({
       id: booking.id,
       kind: "Service",
       title: booking.service_type,
@@ -466,11 +440,11 @@ export async function listUserBookings() {
       detail: booking.customer_notes || "Service request submitted",
       estimated_price: booking.estimated_price ?? 0,
       reference_number: `MAH-SVC-${booking.id.slice(0, 6).toUpperCase()}`
-    })
-  );
+    }));
 
-  const liftBookings = ((liftBookingResult.data ?? []) as LiftBookingRow[]).map<BookingSummary>(
-    (booking) => ({
+  const liftBookings = ((liftBookingResult.data ?? []) as LiftBookingRow[])
+    .filter((booking) => !["cancelled", "rejected"].includes(booking.status))
+    .map<BookingSummary>((booking) => ({
       id: booking.id,
       kind: "Lift",
       title: `${lifts.get(booking.lift_id) ?? "Car lift"} rental`,
@@ -481,12 +455,26 @@ export async function listUserBookings() {
       detail: booking.customer_notes || "Lift booking request submitted",
       estimated_price: 48,
       reference_number: `MAH-LIFT-${booking.id.slice(0, 6).toUpperCase()}`
-    })
-  );
+    }));
 
   return [...serviceBookings, ...liftBookings].sort((a, b) =>
     b.date_label.localeCompare(a.date_label)
   );
+}
+
+export async function cancelBooking(booking: BookingSummary) {
+  if (booking.kind === "Application") {
+    throw new Error("Job applications cannot be cancelled from the booking screen.");
+  }
+
+  const { error } = await supabase.rpc("manfix_cancel_booking", {
+    booking_id: booking.id,
+    booking_kind: booking.kind === "Service" ? "service" : "lift"
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export async function submitJobApplication(input: {

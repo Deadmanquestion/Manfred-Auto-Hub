@@ -1,14 +1,17 @@
 import { StyleSheet, Text, View } from "react-native";
 import type { BookingSummary } from "../types/ui";
+import { AppButton } from "./AppButton";
 import { AppCard } from "./AppCard";
 import { StatusBadge } from "./StatusBadge";
 import { colors } from "../theme/colors";
 
 interface BookingCardProps {
   booking: BookingSummary;
+  cancelling?: boolean;
+  onCancel?: () => void;
 }
 
-export function BookingCard({ booking }: BookingCardProps) {
+export function BookingCard({ booking, cancelling = false, onCancel }: BookingCardProps) {
   const priceLabel =
     booking.kind === "Application" ? "No fee" : `$${booking.estimated_price}`;
 
@@ -43,6 +46,14 @@ export function BookingCard({ booking }: BookingCardProps) {
         <Text style={styles.detail}>{booking.detail}</Text>
         {booking.kind === "Application" ? null : <StatusBadge status={booking.payment_status} />}
       </View>
+      {onCancel && (booking.status === "pending" || booking.status === "approved") ? (
+        <AppButton
+          title={cancelling ? "Cancelling..." : "Cancel booking"}
+          variant="secondary"
+          loading={cancelling}
+          onPress={onCancel}
+        />
+      ) : null}
     </AppCard>
   );
 }

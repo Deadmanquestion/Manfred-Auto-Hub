@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedSectionHeader } from "../components/AnimatedSectionHeader";
 import { AppButton } from "../components/AppButton";
@@ -9,10 +9,14 @@ import { Screen } from "../components/Screen";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SuccessState } from "../components/SuccessState";
 import { mockServiceMenu } from "../data/mockData";
+import { createServiceBooking, listServiceMenu } from "../lib/database";
+import { hasSupabaseEnv } from "../lib/supabase";
 import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
+import type { ServiceMenuItem } from "../types/ui";
 
-export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: ScreenProps) {
+export function BookServiceScreen({ navigate, goBack, cars, addMockBooking, refreshData }: ScreenProps) {
+  const [services, setServices] = useState<ServiceMenuItem[]>(mockServiceMenu);
   const [selectedCarId, setSelectedCarId] = useState(cars[0]?.id ?? "");
   const [selectedServiceId, setSelectedServiceId] = useState(mockServiceMenu[0]?.id ?? "");
   const [notes, setNotes] = useState("");
@@ -21,8 +25,18 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
   const [errorMessage, setErrorMessage] = useState("");
   const [successReference, setSuccessReference] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const selectedService = mockServiceMenu.find((service) => service.id === selectedServiceId);
+  const selectedService = services.find((service) => service.id === selectedServiceId);
   const selectedCar = cars.find((car) => car.id === selectedCarId);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv) return;
+    void listServiceMenu()
+      .then((records) => {
+        setServices(records);
+        setSelectedServiceId((current) => records.some((record) => record.id === current) ? current : records[0]?.id ?? "");
+      })
+      .catch((error) => setErrorMessage(error instanceof Error ? error.message : "Unable to load services."));
+  }, []);
 
   async function handleSubmit() {
     setErrorMessage("");
@@ -41,20 +55,41 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
     setIsSubmitting(true);
     const referenceNumber = `MAH-SVC-${Date.now().toString().slice(-6)}`;
 
-    addMockBooking({
-      kind: "Service",
-      title: selectedService.name,
-      date_label: "Three days from today at this time",
-      car_label: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : "Saved car",
-      status: "pending",
-      payment_status: "unpaid",
-      detail: `${photoUrl.trim() ? "Visual reference added. " : ""}${photoCaption.trim() || notes.trim() || "Waiting for workshop review."}`,
-      estimated_price: selectedService.estimated_price,
-      reference_number: referenceNumber
-    });
-
-    setSuccessReference(referenceNumber);
-    setIsSubmitting(false);
+    try {
+      if (hasSupabaseEnv) {
+        const preferredDate = new Date();
+        preferredDate.setDate(preferredDate.getDate() + 3);
+        const bookingId = await createServiceBooking({
+          car_id: selectedCarId,
+          customer_notes: notes.trim(),
+          estimated_price: selectedService.estimated_price,
+          photo_caption: photoCaption.trim(),
+          photo_url: photoUrl.trim(),
+          service_catalog_id: selectedService.id,
+          service_date: preferredDate.toISOString(),
+          service_type: selectedService.name
+        });
+        await refreshData();
+        setSuccessReference(`MF-SVC-${bookingId.slice(0, 6).toUpperCase()}`);
+      } else {
+        await addMockBooking({
+          kind: "Service",
+          title: selectedService.name,
+          date_label: "Three days from today at this time",
+          car_label: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : "Saved car",
+          status: "pending",
+          payment_status: "unpaid",
+          detail: `${photoUrl.trim() ? "Visual reference added. " : ""}${photoCaption.trim() || notes.trim() || "Waiting for workshop review."}`,
+          estimated_price: selectedService.estimated_price,
+          reference_number: referenceNumber
+        });
+        setSuccessReference(referenceNumber);
+      }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to submit the service request.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (successReference) {
@@ -105,7 +140,7 @@ export function BookServiceScreen({ navigate, goBack, cars, addMockBooking }: Sc
 
       <AnimatedSectionHeader eyebrow="Step 2" title="Choose a service" />
 
-      {mockServiceMenu.map((service) => (
+      {services.map((service) => (
         <AppCard
           key={service.id}
           onPress={() => setSelectedServiceId(service.id)}

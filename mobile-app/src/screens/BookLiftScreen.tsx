@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedSectionHeader } from "../components/AnimatedSectionHeader";
 import { AppButton } from "../components/AppButton";
@@ -9,8 +9,11 @@ import { Screen } from "../components/Screen";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { SuccessState } from "../components/SuccessState";
 import { mockLifts } from "../data/mockData";
+import { createLiftBooking, listAvailableLiftSlots, listLifts } from "../lib/database";
+import { hasSupabaseEnv } from "../lib/supabase";
 import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
+import type { LiftAvailabilitySlot, LiftSummary } from "../types/ui";
 
 const liftPackages = [
   {
@@ -46,7 +49,9 @@ const timeSlots = [
   "Saturday, 1:00 PM - 3:00 PM"
 ];
 
-export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: ScreenProps) {
+export function BookLiftScreen({ navigate, goBack, cars, addMockBooking, refreshData }: ScreenProps) {
+  const [lifts, setLifts] = useState<LiftSummary[]>(mockLifts);
+  const [availableSlots, setAvailableSlots] = useState<LiftAvailabilitySlot[]>([]);
   const [selectedCarId, setSelectedCarId] = useState(cars[0]?.id ?? "");
   const [selectedLiftId, setSelectedLiftId] = useState(mockLifts[0]?.id ?? "");
   const [selectedPackageId, setSelectedPackageId] = useState(liftPackages[0].id);
@@ -58,12 +63,36 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
   const [errorMessage, setErrorMessage] = useState("");
   const [successReference, setSuccessReference] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const selectedLift = mockLifts.find((lift) => lift.id === selectedLiftId);
+  const selectedLift = lifts.find((lift) => lift.id === selectedLiftId);
   const selectedPackage = liftPackages.find((item) => item.id === selectedPackageId) ?? liftPackages[0];
   const selectedCar = cars.find((car) => car.id === selectedCarId);
   const toolPrice = includeTools ? 18 : 0;
   const assistantPrice = includeAssistant ? 35 : 0;
   const estimatedTotal = selectedPackage.price + toolPrice + assistantPrice;
+  const displayedSlots = useMemo(
+    () => availableSlots.length ? availableSlots.map((slot) => slot.label) : timeSlots,
+    [availableSlots]
+  );
+
+  useEffect(() => {
+    if (!hasSupabaseEnv) return;
+    void listLifts()
+      .then((records) => {
+        setLifts(records);
+        setSelectedLiftId((current) => records.some((record) => record.id === current) ? current : records[0]?.id ?? "");
+      })
+      .catch((error) => setErrorMessage(error instanceof Error ? error.message : "Unable to load lift bays."));
+  }, []);
+
+  useEffect(() => {
+    if (!hasSupabaseEnv || !selectedLiftId) return;
+    void listAvailableLiftSlots(selectedLiftId)
+      .then((records) => {
+        setAvailableSlots(records);
+        setSelectedSlot((current) => records.some((record) => record.label === current) ? current : records[0]?.label ?? "");
+      })
+      .catch((error) => setErrorMessage(error instanceof Error ? error.message : "Unable to load available times."));
+  }, [selectedLiftId]);
 
   async function handleSubmit() {
     setErrorMessage("");
@@ -87,20 +116,38 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
     setIsSubmitting(true);
     const referenceNumber = `MAH-LIFT-${Date.now().toString().slice(-6)}`;
 
-    addMockBooking({
-      kind: "Lift",
-      title: `${selectedLift?.name ?? "Lift bay"} - ${selectedPackage.name}`,
-      date_label: selectedSlot,
-      car_label: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : "Saved car",
-      status: "pending",
-      payment_status: "unpaid",
-      detail: `${includeTools ? "Tools added. " : ""}${includeAssistant ? "Mechanic assistant added. " : ""}${notes.trim() || "Waiting for admin approval."}`,
-      estimated_price: estimatedTotal,
-      reference_number: referenceNumber
-    });
-
-    setSuccessReference(referenceNumber);
-    setIsSubmitting(false);
+    try {
+      if (hasSupabaseEnv) {
+        const slot = availableSlots.find((record) => record.label === selectedSlot);
+        if (!slot) throw new Error("Select an available lift time.");
+        const bookingId = await createLiftBooking({
+          car_id: selectedCarId,
+          customer_notes: `${selectedPackage.name}. ${includeTools ? "Tools requested. " : ""}${includeAssistant ? "Mechanic assistant requested. " : ""}${notes.trim()}`.trim(),
+          lift_id: selectedLiftId,
+          requested_end_at: slot.ends_at,
+          requested_start_at: slot.starts_at
+        });
+        await refreshData();
+        setSuccessReference(`MF-LIFT-${bookingId.slice(0, 6).toUpperCase()}`);
+      } else {
+        await addMockBooking({
+          kind: "Lift",
+          title: `${selectedLift?.name ?? "Lift bay"} - ${selectedPackage.name}`,
+          date_label: selectedSlot,
+          car_label: selectedCar ? `${selectedCar.make} ${selectedCar.model}` : "Saved car",
+          status: "pending",
+          payment_status: "unpaid",
+          detail: `${includeTools ? "Tools added. " : ""}${includeAssistant ? "Mechanic assistant added. " : ""}${notes.trim() || "Waiting for admin approval."}`,
+          estimated_price: estimatedTotal,
+          reference_number: referenceNumber
+        });
+        setSuccessReference(referenceNumber);
+      }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to submit the lift booking.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (successReference) {
@@ -154,7 +201,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
 
       <AnimatedSectionHeader eyebrow="Step 1" title="Lift bay options" />
 
-      {mockLifts.map((lift) => (
+      {lifts.map((lift) => (
         <AppCard
           key={lift.id}
           onPress={() => {
@@ -204,7 +251,7 @@ export function BookLiftScreen({ navigate, goBack, cars, addMockBooking }: Scree
         helperText="The selected slot will be reviewed by the workshop team."
       />
       <View style={styles.optionGrid}>
-        {timeSlots.map((slot) => (
+        {displayedSlots.map((slot) => (
           <AppCard
             key={slot}
             onPress={() => setSelectedSlot(slot)}

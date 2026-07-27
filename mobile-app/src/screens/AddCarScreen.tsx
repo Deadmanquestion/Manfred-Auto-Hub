@@ -19,7 +19,7 @@ export function AddCarScreen({ navigate, goBack, addMockCar }: ScreenProps) {
   const [successReference, setSuccessReference] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  function handleSaveCar() {
+  async function handleSaveCar() {
     setErrorMessage("");
     setSuccessReference("");
 
@@ -37,17 +37,21 @@ export function AddCarScreen({ navigate, goBack, addMockCar }: ScreenProps) {
 
     setIsSaving(true);
 
-    addMockCar({
-      make: make.trim(),
-      model: model.trim(),
-      year: parsedYear ?? new Date().getFullYear(),
-      license_plate: licensePlate.trim() || "No plate saved",
-      color: color.trim() || "Not specified",
-      next_service: notes.trim() || "No service notes yet"
-    });
-
-    setSuccessReference(`MAH-CAR-${Date.now().toString().slice(-6)}`);
-    setIsSaving(false);
+    try {
+      await addMockCar({
+        make: make.trim(),
+        model: model.trim(),
+        year: parsedYear ?? new Date().getFullYear(),
+        license_plate: licensePlate.trim() || "No plate saved",
+        color: color.trim() || "Not specified",
+        next_service: notes.trim() || "No service notes yet"
+      });
+      setSuccessReference(`MAH-CAR-${Date.now().toString().slice(-6)}`);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to save the vehicle.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   if (successReference) {

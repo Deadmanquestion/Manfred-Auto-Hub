@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../components/AppButton";
 import { AppCard } from "../components/AppCard";
@@ -8,7 +9,9 @@ import { colors } from "../theme/colors";
 import type { ScreenProps } from "../types/navigation";
 import type { BookingSummary } from "../types/ui";
 
-export function MyBookingsScreen({ navigate, goBack, bookings }: ScreenProps) {
+export function MyBookingsScreen({ navigate, goBack, bookings, cancelBooking }: ScreenProps) {
+  const [cancellingId, setCancellingId] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const liftBookings = bookings.filter((booking) => booking.kind === "Lift");
   const serviceBookings = bookings.filter((booking) => booking.kind === "Service");
   const applications = bookings.filter((booking) => booking.kind === "Application");
@@ -38,6 +41,7 @@ export function MyBookingsScreen({ navigate, goBack, bookings }: ScreenProps) {
           <Text style={styles.summaryLabel}>Pending approval</Text>
         </View>
       </View>
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
 
       <BookingSection
         emptyActionLabel="Book a lift"
@@ -45,6 +49,8 @@ export function MyBookingsScreen({ navigate, goBack, bookings }: ScreenProps) {
         onEmptyAction={() => navigate("BookLift")}
         records={liftBookings}
         title="Lift Bookings"
+        cancellingId={cancellingId}
+        onCancel={handleCancel}
       />
       <BookingSection
         emptyActionLabel="Book service"
@@ -52,6 +58,8 @@ export function MyBookingsScreen({ navigate, goBack, bookings }: ScreenProps) {
         onEmptyAction={() => navigate("BookService")}
         records={serviceBookings}
         title="Service Bookings"
+        cancellingId={cancellingId}
+        onCancel={handleCancel}
       />
       <BookingSection
         emptyActionLabel="Join apprentice"
@@ -59,9 +67,23 @@ export function MyBookingsScreen({ navigate, goBack, bookings }: ScreenProps) {
         onEmptyAction={() => navigate("JobApplication")}
         records={applications}
         title="Job Applications"
+        cancellingId={cancellingId}
+        onCancel={handleCancel}
       />
     </Screen>
   );
+
+  async function handleCancel(booking: BookingSummary) {
+    setErrorMessage("");
+    setCancellingId(booking.id);
+    try {
+      await cancelBooking(booking);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Unable to cancel this booking.");
+    } finally {
+      setCancellingId("");
+    }
+  }
 }
 
 function BookingSection(props: {
@@ -70,6 +92,8 @@ function BookingSection(props: {
   emptyMessage: string;
   emptyActionLabel: string;
   onEmptyAction: () => void;
+  cancellingId: string;
+  onCancel: (booking: BookingSummary) => Promise<void>;
 }) {
   return (
     <View style={styles.section}>
@@ -89,7 +113,12 @@ function BookingSection(props: {
         </AppCard>
       ) : null}
       {props.records.map((booking) => (
-        <BookingCard key={booking.id} booking={booking} />
+        <BookingCard
+          key={booking.id}
+          booking={booking}
+          cancelling={props.cancellingId === booking.id}
+          onCancel={booking.kind === "Application" ? undefined : () => void props.onCancel(booking)}
+        />
       ))}
     </View>
   );
@@ -162,5 +191,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: 6
+  },
+  error: {
+    color: colors.danger,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 19
   }
 });
